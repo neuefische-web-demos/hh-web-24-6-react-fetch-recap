@@ -1,35 +1,48 @@
 import { useEffect, useState } from "react";
 
 function App() {
-  const [count, setCount] = useState(0);
-  const [message, setMessage] = useState("Hello From outside React");
+  const hex = "#ff0000";
+  const [contrast, setContrast] = useState("#220000");
+  const [score, setScore] = useState("???");
 
   useEffect(() => {
-    const outsideContainer = document.getElementById("outside-react");
-    const greeting = document.createElement("h1");
-    greeting.textContent = message;
-    outsideContainer.append(greeting);
+    async function fetchScore() {
+      const response = await fetch(
+        "https://www.aremycolorsaccessible.com/api/are-they",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            colors: [hex, contrast],
+          }),
+        }
+      );
+      const data = await response.json();
 
-    return () => {
-      greeting.replaceWith();
-    };
-  }, [message]);
+      setScore(data.overall);
+    }
+    fetchScore();
+  }, [contrast]);
 
   return (
     <main>
-      <button onClick={() => setCount(count + 1)}>{count}</button>
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          const newMessage = event.target.elements.message.value;
-
-          setMessage(newMessage);
-        }}
-      >
-        <input type="text" name="message" defaultValue={message} />
-        <button type="submit">submit</button>
-      </form>
-      <h1>Hello inside React</h1>
+      <p>Color: {hex}</p>
+      <p>
+        Contrast:
+        <form
+          action=""
+          onSubmit={(event) => {
+            event.preventDefault();
+            setContrast(event.target.elements.contrast.value);
+          }}
+        >
+          <input type="text" name="contrast" defaultValue={contrast} />
+          <button>submit</button>
+        </form>
+      </p>
+      <p>Contrast Score: {score}</p>
     </main>
   );
 }
